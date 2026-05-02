@@ -1,0 +1,3 @@
+## 2024-05-02 - N+1 Query bottlenecks in product filtering
+**Learning:** Found an N+1 query performance bottleneck in `server/controllers/product.controller.js` when filtering by `minRating`. The previous logic loaded all matching products, then looped over them using `Promise.all` to query the `reviews` table separately for each product's average rating.
+**Action:** Replaced the application-level filtering with a SQL subquery. Instead of fetching reviews in a loop, wrapped the primary count query inside a derived table (subquery) that calculates the average rating and applies `HAVING average_rating >= ?` logic directly in the database.
