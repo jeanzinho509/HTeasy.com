@@ -1,0 +1,4 @@
+## 2026-05-04 - Privilege Escalation via Mass Assignment in Registration
+**Vulnerability:** The `/api/auth/register` endpoint allowed mass assignment by directly extracting the `role` attribute from the request body (`req.body`) and using it to register new users. This meant any unauthenticated user could create an account with `role: 'admin'` and gain full administrative privileges.
+**Learning:** Never trust the request body for sensitive fields, especially roles or permissions, during public actions like user registration. Simply because the field isn't exposed on the frontend signup form does not mean it cannot be supplied via an API request.
+**Prevention:** Hardcode sensitive defaults (like `user` for the role parameter) instead of conditionally defaulting based on `req.body` values. Avoid mass assigning attributes; always specifically select which properties from `req.body` should be mapped to database fields.
