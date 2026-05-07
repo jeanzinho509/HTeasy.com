@@ -160,13 +160,20 @@ exports.deleteImage = async (req, res) => {
     const urlPath = imageUrl.replace('/uploads/', '');
     const filePath = path.join(UPLOAD_DIR, urlPath);
     
+    // Security check: Prevent path traversal
+    const resolvedPath = path.resolve(filePath);
+    const expectedPrefix = path.join(path.resolve(UPLOAD_DIR), path.sep);
+    if (!resolvedPath.startsWith(expectedPrefix)) {
+      return res.status(403).json({ message: 'Forbidden path' });
+    }
+
     // Check if file exists
-    if (!fs.existsSync(filePath)) {
+    if (!fs.existsSync(resolvedPath)) {
       return res.status(404).json({ message: 'Image not found' });
     }
     
     // Delete file
-    fs.unlinkSync(filePath);
+    fs.unlinkSync(resolvedPath);
     
     res.status(200).json({
       message: 'Image deleted successfully'
