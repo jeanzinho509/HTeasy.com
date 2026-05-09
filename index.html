@@ -22,8 +22,7 @@
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
                 <li>
-                    <label></label>
-                    <select id="categories-list" name="categories-list">
+                    <select id="categories-list" name="categories-list" aria-label="Product Categories">
                       <option value="Categories">Categories</option>
                       <option value="Vehicles.html">Vehicles</option>
                       <option value="Electronics.html">Electronics</option>
@@ -42,16 +41,16 @@
         </nav>
         <div class="user-actions">
             <div class="cart-wishlist-icons">
-                <a href="#" id="wishlist-icon" class="icon-btn" title="Wishlist">
-                    <i class="fas fa-heart"></i>
+                <a href="#" id="wishlist-icon" class="icon-btn" title="Wishlist" aria-label="Wishlist">
+                    <i class="fas fa-heart" aria-hidden="true"></i>
                     <span class="wishlist-count">0</span>
                 </a>
-                <a href="#" id="cart-icon" class="icon-btn" title="Cart">
-                    <i class="fas fa-shopping-cart"></i>
+                <a href="#" id="cart-icon" class="icon-btn" title="Cart" aria-label="Shopping Cart">
+                    <i class="fas fa-shopping-cart" aria-hidden="true"></i>
                     <span class="cart-count">0</span>
                 </a>
             </div>
-            <button class="btn"><a href="sign-in.html">Sign In</a></button>
+            <a href="sign-in.html" class="btn" style="text-decoration: none; display: inline-block;">Sign In</a>
         </div>
         </div>
     </header>
