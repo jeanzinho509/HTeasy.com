@@ -1,0 +1,3 @@
+## 2025-02-18 - Replacing N+1 Subqueries in the Backend
+**Learning:** In standard product-fetching logic (all products, by category, or by search), counting paginated results while applying HAVING clauses (like `min_rating`) leads to terrible N+1 performance bottlenecks if we filter array items directly in JavaScript over DB queries.
+**Action:** Rewrite the `countQuery` logic in endpoints to include the `SELECT COUNT(*) FROM (...)` with the same logic inside a subquery, executing directly on the database instead of the JavaScript runtime. This replaces a costly `Promise.all` `.map` database loop with a single O(1) trip to the database.
