@@ -38,8 +38,8 @@ exports.register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     
-    // Set default role to 'user' unless specified and user is authorized
-    const userRole = role || 'user';
+    // Force role to 'user' to prevent privilege escalation via mass assignment
+    const userRole = 'user';
     
     // Insert user into database
     const [result] = await pool.query(
