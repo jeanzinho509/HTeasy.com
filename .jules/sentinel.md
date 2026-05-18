@@ -1,0 +1,5 @@
+
+## 2024-05-24 - Privilege Escalation via Mass Assignment in Registration
+**Vulnerability:** The public registration endpoint (`/register` in `server/controllers/auth.controller.js`) directly extracted the `role` field from the client's HTTP request body and assigned it to the newly created user in the database.
+**Learning:** This is a classic "Mass Assignment" or "Privilege Escalation" vulnerability. Because there was no server-side validation or stripping of the `role` field, a malicious user could craft a request payload like `{"name": "Attacker", "email": "attacker@example.com", "password": "password", "role": "admin"}` and successfully register an administrator account, bypassing all intended access controls. Never trust user input to define their own privilege levels.
+**Prevention:** Explicitly define and restrict the fields that can be assigned from user input. For registration, the role should always be hardcoded to the lowest privilege level (e.g., `'user'`). Privilege elevation should be handled in a separate, secure endpoint that requires administrative authorization.
