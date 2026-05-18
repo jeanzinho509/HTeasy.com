@@ -23,6 +23,23 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Security Middleware: Prevent access to sensitive files when serving static root
+app.use((req, res, next) => {
+  const normalizedPath = req.path.toLowerCase();
+  if (
+    normalizedPath.includes('/.env') ||
+    normalizedPath.includes('/server.js') ||
+    normalizedPath.includes('/package.json') ||
+    normalizedPath.includes('/package-lock.json') ||
+    normalizedPath.includes('/.git') ||
+    normalizedPath.startsWith('/server/') ||
+    normalizedPath.startsWith('/node_modules/')
+  ) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+  next();
+});
+
 // Serve static files
 app.use(express.static(path.join(__dirname, '/')));
 
