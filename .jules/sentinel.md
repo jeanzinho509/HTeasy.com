@@ -1,0 +1,4 @@
+## 2024-05-16 - Sensitive File Exposure via Root Directory Serving
+**Vulnerability:** The application used `app.use(express.static(path.join(__dirname, '/')));` to serve frontend files, which unintentionally exposed the entire backend directory structure, including `.env`, `server.js`, `package.json`, and the `server/` source directory, to anyone who requested them.
+**Learning:** Serving static files from the root directory of a full-stack application mixes public frontend assets with private backend code and configuration. This is a critical security risk.
+**Prevention:** Always separate public frontend assets into a dedicated directory (e.g., `public/`) and restrict `express.static` to serve only that directory. If that requires a large architectural change, implement middleware to explicitly block access to known sensitive files and directories as an immediate mitigation.
