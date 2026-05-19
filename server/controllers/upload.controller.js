@@ -6,6 +6,16 @@ const { pool } = require('../config/db');
 // Base upload directory
 const UPLOAD_DIR = path.join(__dirname, '../../uploads');
 
+// Helper to safely get extension and validate it
+function getSafeExtension(originalname) {
+  const ext = path.extname(originalname).toLowerCase();
+  const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+  if (!allowedExtensions.includes(ext)) {
+    throw new Error('Invalid file extension');
+  }
+  return ext;
+}
+
 // Ensure upload directories exist
 function ensureDirectoriesExist() {
   const dirs = [
@@ -39,7 +49,12 @@ exports.uploadProductImage = async (req, res) => {
     ensureDirectoriesExist();
     
     // Generate unique filename
-    const fileExtension = path.extname(req.file.originalname);
+    let fileExtension;
+    try {
+      fileExtension = getSafeExtension(req.file.originalname);
+    } catch (e) {
+      return res.status(400).json({ message: e.message });
+    }
     const fileName = `${uuidv4()}${fileExtension}`;
     const filePath = path.join('products', fileName);
     const fullPath = path.join(UPLOAD_DIR, filePath);
@@ -77,7 +92,12 @@ exports.uploadCategoryImage = async (req, res) => {
     ensureDirectoriesExist();
     
     // Generate unique filename
-    const fileExtension = path.extname(req.file.originalname);
+    let fileExtension;
+    try {
+      fileExtension = getSafeExtension(req.file.originalname);
+    } catch (e) {
+      return res.status(400).json({ message: e.message });
+    }
     const fileName = `${uuidv4()}${fileExtension}`;
     const filePath = path.join('categories', fileName);
     const fullPath = path.join(UPLOAD_DIR, filePath);
@@ -115,7 +135,12 @@ exports.uploadUserAvatar = async (req, res) => {
     ensureDirectoriesExist();
     
     // Generate unique filename
-    const fileExtension = path.extname(req.file.originalname);
+    let fileExtension;
+    try {
+      fileExtension = getSafeExtension(req.file.originalname);
+    } catch (e) {
+      return res.status(400).json({ message: e.message });
+    }
     const fileName = `${uuidv4()}${fileExtension}`;
     const filePath = path.join('users', fileName);
     const fullPath = path.join(UPLOAD_DIR, filePath);
@@ -158,7 +183,13 @@ exports.deleteImage = async (req, res) => {
     
     // Extract file path from URL
     const urlPath = imageUrl.replace('/uploads/', '');
-    const filePath = path.join(UPLOAD_DIR, urlPath);
+    const filePath = path.resolve(UPLOAD_DIR, urlPath);
+    const resolvedUploadDir = path.resolve(UPLOAD_DIR);
+
+    // Security check: prevent path traversal
+    if (!filePath.startsWith(resolvedUploadDir)) {
+      return res.status(403).json({ message: 'Forbidden: Invalid path' });
+    }
     
     // Check if file exists
     if (!fs.existsSync(filePath)) {
