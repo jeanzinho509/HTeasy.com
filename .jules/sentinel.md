@@ -1,0 +1,4 @@
+## 2024-05-30 - Prevent Privilege Escalation via Mass Assignment
+**Vulnerability:** Mass assignment in the user registration endpoint (`server/controllers/auth.controller.js`). The endpoint previously destructured the `role` directly from `req.body` and assigned it to new users without any validation or authorization checks.
+**Learning:** This is a classic privilege escalation flaw. End-users could register themselves as administrators simply by passing `{"role": "admin"}` in their POST request, bypassing normal access controls completely.
+**Prevention:** Hardcode default user roles for public registration endpoints. Administrative user creation should only happen through protected routes restricted to existing administrators. Explicitly allow-list the fields that can be updated from user input instead of trusting the entire payload.
