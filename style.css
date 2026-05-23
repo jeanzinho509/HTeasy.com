@@ -287,3 +287,47 @@ body.menu-open {
     padding: 2rem 0;
   }
 }
+
+/* Interaction and Accessibility Improvements */
+:focus-visible {
+  outline: 3px solid #256AF5;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Contrasting focus for dark backgrounds */
+.navbar :focus-visible,
+.footer :focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* Button hover and active states */
+.btn {
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn:hover {
+  background: #e0e0e0;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* Nav links hover */
+.nav-links a {
+  transition: opacity 0.2s ease;
+}
+
+.nav-links a:hover {
+  opacity: 0.8;
+}
+
+.icon-btn {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.icon-btn:active {
+  transform: scale(0.9);
+}
