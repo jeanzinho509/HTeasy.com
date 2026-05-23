@@ -1,0 +1,4 @@
+## 2024-05-23 - [Mass Assignment Privilege Escalation in User Registration]
+**Vulnerability:** The `/api/auth/register` endpoint destructured `role` from the request body (`req.body`) and directly applied it to the database insert statement if provided. This allowed any unauthenticated user to register an account with `'admin'` or `'seller'` roles simply by supplying `"role": "admin"` in the JSON payload.
+**Learning:** This existed because the role was conditionally assigned with `role || 'user'`, meant to allow admins to create other roles but insecurely implemented within the public registration flow.
+**Prevention:** Never extract authorization-level fields (e.g. roles, permissions, administrative flags) from an untrusted request payload unless performing strict validation/authorization checks first. For public registration, always hardcode the default user privilege level (e.g. `'user'`).
