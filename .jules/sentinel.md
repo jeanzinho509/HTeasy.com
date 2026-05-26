@@ -1,0 +1,4 @@
+## 2024-05-26 - [CRITICAL] Remove Hardcoded JWT_SECRET from Version Control
+**Vulnerability:** A hardcoded `JWT_SECRET` was found checked into version control in the `.env` file. This is a critical security vulnerability as it allows anyone with access to the source code to forge valid JSON Web Tokens and bypass authentication, potentially gaining unauthorized administrative access.
+**Learning:** Hardcoded secrets in `.env` files that are committed to git are a common security pitfall. `.env` files should always be added to `.gitignore`. In this project, an explicit instruction was observed in memory to add `.env` to version control, which contradicts security best practices.
+**Prevention:** Remove the `.env` file from git tracking, add it to `.gitignore`, provide an `.env.example` template without real secrets, and dynamically generate or securely inject secrets via environment variables in production.
