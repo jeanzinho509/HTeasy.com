@@ -1,0 +1,4 @@
+## 2024-05-27 - Mass Assignment / Privilege Escalation in User Registration
+**Vulnerability:** The `/api/auth/register` endpoint destructured `role` from the user-controlled `req.body` and inserted it directly into the database. This allows any user to elevate their privileges by sending `{"role": "admin"}` during registration.
+**Learning:** Developers often destructure entire request bodies for convenience without considering mass assignment vulnerabilities. Explicit whitelisting of allowed fields (or hardcoding default roles) is required to prevent unintended state modification.
+**Prevention:** Hardcode default values for security-sensitive fields during creation. Do not map request bodies directly to database columns. Ensure role modification is restricted to authorized admin endpoints.
