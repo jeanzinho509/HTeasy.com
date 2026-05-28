@@ -1,0 +1,4 @@
+## 2024-05-28 - [Path Traversal in Image Deletion]
+**Vulnerability:** A critical path traversal vulnerability existed in `server/controllers/upload.controller.js`'s `deleteImage` endpoint. User input (`imageUrl`) was concatenated with the base directory using `path.join`, allowing malicious payloads like `../../etc/passwd` to be deleted if the backend had sufficient permissions.
+**Learning:** The previous implementation extracted a path segment from a URL and passed it directly to `path.join()`. This is inherently unsafe because `path.join()` normalizes the path but does not restrict it to a specific base directory.
+**Prevention:** Always use `path.resolve()` combined with a strict containment check to verify that the final, absolute path strictly begins with the expected base directory prefix (`resolvedBaseDir + path.sep`).
