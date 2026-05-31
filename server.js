@@ -23,6 +23,30 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Security Middleware to prevent path traversal and exposure of sensitive files
+app.use((req, res, next) => {
+  try {
+    const decodedPath = decodeURIComponent(req.path);
+    const normalizedPath = path.normalize(decodedPath);
+
+    const denylist = [
+      'server.js', 'package.json', 'package-lock.json', 'pnpm-lock.yaml',
+      'database', 'server', 'setup.js', 'node_modules', 'readme.md'
+    ];
+
+    const segments = normalizedPath.split(/[\/\\]/).filter(Boolean);
+    const firstSegment = segments[0] ? segments[0].toLowerCase() : null;
+
+    if (firstSegment && (firstSegment.startsWith('.') || denylist.includes(firstSegment))) {
+      return res.status(403).send('Access denied');
+    }
+
+    next();
+  } catch (error) {
+    return res.status(400).send('Bad Request');
+  }
+});
+
 // Serve static files
 app.use(express.static(path.join(__dirname, '/')));
 
