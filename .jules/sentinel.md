@@ -1,0 +1,4 @@
+## 2024-05-24 - [CRITICAL] Prevent sensitive data leak via checked-in .env
+**Vulnerability:** The `.env` file containing hardcoded secrets (e.g., `JWT_SECRET`) and local database credentials was checked directly into version control. This is a critical security vulnerability as it exposes sensitive information to anyone with access to the repository.
+**Learning:** This repo didn't have a `.gitignore` file tracking common developer artifacts like `.env` and `node_modules`. Always double check `.gitignore` before committing files.
+**Prevention:** Created a `.gitignore` file to track `.env`, `node_modules/`, and `pnpm-lock.yaml`. Removed `.env` from tracking using `git rm --cached .env` and provided a `.env.example` as a template.
