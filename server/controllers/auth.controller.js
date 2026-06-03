@@ -20,7 +20,9 @@ const sendPasswordResetEmail = (email, token) => {
 // Register a new user
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, phone, role } = req.body;
+    // SECURITY: Do not extract 'role' from req.body to prevent mass assignment/privilege escalation.
+    // If we accepted role here, any user could register as an 'admin'.
+    const { name, email, password, phone } = req.body;
     
     // Validate input
     if (!name || !email || !password) {
@@ -38,8 +40,8 @@ exports.register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     
-    // Set default role to 'user' unless specified and user is authorized
-    const userRole = role || 'user';
+    // SECURITY: Hardcode new user registrations to 'user' role.
+    const userRole = 'user';
     
     // Insert user into database
     const [result] = await pool.query(
