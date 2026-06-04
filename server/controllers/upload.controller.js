@@ -158,8 +158,18 @@ exports.deleteImage = async (req, res) => {
     
     // Extract file path from URL
     const urlPath = imageUrl.replace('/uploads/', '');
-    const filePath = path.join(UPLOAD_DIR, urlPath);
     
+    // Resolve the intended file path
+    const resolvedUploadDir = path.resolve(UPLOAD_DIR);
+    const filePath = path.resolve(resolvedUploadDir, urlPath);
+
+    // SECURITY: Prevent Path Traversal
+    // Ensure the resolved file path starts with the upload directory
+    if (!filePath.startsWith(resolvedUploadDir + path.sep) && filePath !== resolvedUploadDir) {
+      console.warn(`[SECURITY] Path traversal attempt detected: ${imageUrl}`);
+      return res.status(403).json({ message: 'Forbidden: Invalid file path' });
+    }
+
     // Check if file exists
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ message: 'Image not found' });

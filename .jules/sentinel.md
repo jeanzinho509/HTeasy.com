@@ -1,0 +1,4 @@
+## 2024-05-24 - [CRITICAL] Path Traversal in Image Deletion
+**Vulnerability:** The `deleteImage` endpoint in `server/controllers/upload.controller.js` used `path.join` to concatenate user-provided image URLs with the base upload directory. This allowed a path traversal attack, meaning a user could provide a URL like `/uploads/../../server.js` and delete arbitrary files on the server (like `server.js`).
+**Learning:** `path.join` does not resolve absolute paths or traverse beyond the root in a safe way for user input. It simply concatenates strings and normalizes the path. When handling file deletions based on user input, you must ensure the resolved path remains within the intended base directory.
+**Prevention:** Always use `path.resolve` to get the absolute path, and verify that the resulting absolute path starts with the expected base directory's absolute path (plus a directory separator to prevent prefix spoofing like `/uploads` vs `/uploads-backup`).
