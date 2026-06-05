@@ -1,0 +1,4 @@
+## 2024-06-05 - [Critical Static File Exposure via express.static]
+**Vulnerability:** A critical vulnerability exists regarding sensitive file exposure via `express.static` serving the root directory `/` in `server.js`, exposing configuration, environment, and backend source files like `.env`, `server.js`, and `package.json`.
+**Learning:** `express.static` served from the project root exposes all project files unless carefully restricted. Dotfiles and backend files were inadvertently accessible because they lived in the root repository.
+**Prevention:** Always restrict static file servers to public-only directories like `public/` or `dist/`. When serving from root is somehow unavoidable, add robust security middleware that normalizes URLs and blocks explicit sensitive file access via explicit denylists.

@@ -23,6 +23,25 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Security middleware to prevent exposing sensitive files from the root directory
+app.use((req, res, next) => {
+  try {
+    const decodedPath = decodeURIComponent(req.path);
+    const normalizedPath = path.normalize(decodedPath).replace(/\\/g, '/');
+
+    // Block sensitive files and directories
+    const isSensitive = normalizedPath.includes('/.') ||
+      /^\/(server\.js|package\.json|package-lock\.json|pnpm-lock\.yaml|server(\/.*)?|database(\/.*)?|node_modules(\/.*)?)$/i.test(normalizedPath);
+
+    if (isSensitive) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    next();
+  } catch (error) {
+    res.status(400).json({ message: 'Bad Request' });
+  }
+});
+
 // Serve static files
 app.use(express.static(path.join(__dirname, '/')));
 
