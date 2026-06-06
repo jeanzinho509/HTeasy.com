@@ -1,0 +1,4 @@
+## 2025-02-12 - [Path Traversal in File Manipulation Endpoints]
+**Vulnerability:** A critical path traversal vulnerability was found in `server/controllers/upload.controller.js` (`deleteImage` function) where user input (`imageUrl`) was used with `path.join()` without verification, allowing deletion of arbitrary files like `../../../../etc/passwd`.
+**Learning:** `path.join()` is insufficient for securely creating file paths with user input because it allows backward traversal using `..`.
+**Prevention:** To prevent this, resolve the absolute paths for both the base directory and the target file using `path.resolve()`. Then, use `.startsWith()` to verify that the resolved target file path resides within the bounds of the resolved base directory before performing any file system operations. Specifically, ensure the trailing slash is appended to the base directory during the check to prevent partial directory name matching.
