@@ -1,0 +1,3 @@
+## 2024-05-30 - N+1 Query Aggregation in Node.js
+**Learning:** Found a severe performance bottleneck and pagination calculation bug in `server/controllers/product.controller.js` where `Promise.all` was used to manually aggregate subqueries (e.g. average ratings) inside Node.js after a database fetch. This pattern caused an N+1 query explosion and resulted in incorrect pagination totals since the count was incorrectly mapped on just the current paginated view.
+**Action:** Shift conditional logic and property computation to the database using SQL subqueries with `HAVING` clauses and aggregation functions. Ensure total counts are resolved dynamically using wrapped subqueries `(SELECT COUNT(*) FROM (...))` for precision, drastically improving latency and database overhead.
