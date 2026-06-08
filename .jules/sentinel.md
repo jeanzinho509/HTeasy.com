@@ -1,0 +1,4 @@
+## 2024-06-08 - Mass Assignment Privilege Escalation in Registration
+**Vulnerability:** A critical mass assignment vulnerability in `server/controllers/auth.controller.js` allowed any user to supply a `role` field in the registration request body. This enabled a standard user to elevate their privileges to `admin` or other restricted roles simply by including `{"role": "admin"}` during signup.
+**Learning:** Destructuring raw HTTP request bodies (`req.body`) into variables and feeding them directly into business logic or database queries can lead to unintended modification of sensitive fields if properties aren't explicitly filtered or allowlisted.
+**Prevention:** Never trust client-provided data for authorization-critical fields. Explicitly hardcode default roles (e.g., `'user'`) for open registration endpoints, or use strict allowlists to strip out sensitive fields before processing incoming data.
