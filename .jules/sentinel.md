@@ -1,0 +1,4 @@
+## 2024-05-30 - [CRITICAL] Path Traversal in Image Deletion
+**Vulnerability:** The `deleteImage` function in `server/controllers/upload.controller.js` extracted the URL path from `imageUrl` by simply replacing `/uploads/` and joining it with the `UPLOAD_DIR`. It did not use `path.resolve` or boundary checking, allowing attackers to delete arbitrary files on the server using `../` sequences in the `imageUrl` payload.
+**Learning:** The simple usage of `path.join(UPLOAD_DIR, urlPath)` does not prevent a path traversal attack if `urlPath` contains `../`. The Node.js `path.join` resolves `../` normally without boundary limits, leading to path traversal outside of the target directory.
+**Prevention:** Always use `path.resolve` combined with boundary checking (e.g., `resolvedPath.startsWith(path.resolve(UPLOAD_DIR) + path.sep)`) when working with user-controlled input intended for file system operations.
