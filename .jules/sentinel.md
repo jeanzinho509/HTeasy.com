@@ -1,0 +1,4 @@
+## 2024-06-10 - [Mass Assignment Privilege Escalation in Open Registration]
+**Vulnerability:** The open registration endpoint (`/api/auth/register`) destructured `role` directly from `req.body` and inserted it into the user creation database query. This allowed unauthenticated attackers to elevate their privileges to 'admin' simply by supplying `"role": "admin"` in the JSON payload during account creation.
+**Learning:** Destructuring request bodies without explicit allowlists or omitting sensitive fields exposes endpoints to mass assignment attacks. In registration flows, user roles should never be taken directly from the client.
+**Prevention:** Hardcode default user roles for public registration endpoints. For endpoints that require dynamic role assignment, verify the requesting user's authorization level first (e.g., ensure the requestor is already an 'admin') before applying the role. Always explicitly select only the fields needed from `req.body`.
