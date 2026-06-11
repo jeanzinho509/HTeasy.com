@@ -23,6 +23,22 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Security Middleware: Prevent access to sensitive backend files
+app.use((req, res, next) => {
+  // Normalize the path to handle cases like //server.js or /./server.js
+  const normalizedPath = path.normalize(req.path).replace(/\\/g, '/');
+
+  const sensitivePaths = [
+    '/server', '/database', '/node_modules', '/admin',
+    '/server.js', '/package.json', '/package-lock.json', '/pnpm-lock.yaml', '/.env', '/.gitignore'
+  ];
+
+  if (sensitivePaths.some(p => normalizedPath === p || normalizedPath.startsWith(`${p}/`))) {
+    return res.status(403).json({ error: 'Forbidden: Access to sensitive files is denied' });
+  }
+  next();
+});
+
 // Serve static files
 app.use(express.static(path.join(__dirname, '/')));
 
