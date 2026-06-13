@@ -1,0 +1,4 @@
+## 2025-02-23 - [Critical] Fix Path Traversal in Image Deletion
+**Vulnerability:** A critical Path Traversal vulnerability in `server/controllers/upload.controller.js` (`deleteImage` endpoint).
+**Learning:** It existed because `path.join()` was used with user input (`imageUrl` from req.body) directly without properly validating that the resulting file path stays within the intended `UPLOAD_DIR`.
+**Prevention:** To prevent this, always use `path.resolve()` on user input to resolve any relative path components (`../`) and then ensure the path strictly starts with the designated boundary path (`path.resolve(UPLOAD_DIR) + path.sep`) using `.startsWith()`.
