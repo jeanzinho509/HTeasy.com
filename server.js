@@ -23,6 +23,27 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Security middleware: Prevent access to sensitive backend files
+app.use((req, res, next) => {
+  const normalizedPath = path.normalize(req.path).replace(/^(\.\.[\/\\])+/, '');
+  const sensitivePatterns = [
+    /^\/\.env/,
+    /^\/server\.js/,
+    /^\/package\.json/,
+    /^\/package-lock\.json/,
+    /^\/pnpm-lock\.yaml/,
+    /^\/\.git/,
+    /^\/server\//,
+    /^\/database\//,
+    /^\/\.jules\//
+  ];
+
+  if (sensitivePatterns.some(pattern => pattern.test(normalizedPath))) {
+    return res.status(403).json({ message: 'Forbidden' });
+  }
+  next();
+});
+
 // Serve static files
 app.use(express.static(path.join(__dirname, '/')));
 
