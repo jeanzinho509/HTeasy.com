@@ -287,3 +287,14 @@ body.menu-open {
     padding: 2rem 0;
   }
 }
+
+/* Accessibility: Focus Indicators */
+:focus-visible {
+  outline: 3px solid #256AF5;
+  outline-offset: 2px;
+}
+
+.navbar :focus-visible,
+.footer :focus-visible {
+  outline-color: white;
+}
