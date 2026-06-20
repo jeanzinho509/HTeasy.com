@@ -1,0 +1,3 @@
+## 2024-05-15 - [Add visible focus outlines for keyboard navigation accessibility]
+**Learning:** Adding a single global focus-visible color strategy often fails in themes where primary brand colors (e.g., `#256AF5`) are used as background colors for key regions like the `.navbar` and `.footer`. The same blue outline that works on a white background becomes invisible on a blue background, reducing keyboard accessibility.
+**Action:** When adding global focus styles, identify areas with inverted or brand-colored backgrounds and apply contrasting outline colors (e.g., `white` instead of blue) to ensure universal visibility across the entire page layout.
