@@ -1,0 +1,4 @@
+## 2024-06-23 - Privilege Escalation in Registration
+**Vulnerability:** A mass assignment/privilege escalation vulnerability in `server/controllers/auth.controller.js` allowed new users to set their own role by passing `role: "admin"` in the registration payload. The code fell back securely via `userRole = role || 'user'`, but by destructuring `role` from `req.body`, it effectively allowed users to bypass the fallback.
+**Learning:** Destructuring request bodies without explicit whitelisting fields inherently introduces mass-assignment risks, specifically regarding critical access control fields like roles.
+**Prevention:** Always hardcode default privileges/roles on registration or explicitly whitelist permissible fields during object creation. Avoid extracting sensitive fields from user-controlled objects unless explicitly intended for updates by an already-authorized user.
