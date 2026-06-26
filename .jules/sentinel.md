@@ -1,0 +1,4 @@
+## 2024-05-24 - Path Traversal Vulnerability in Image Deletion
+**Vulnerability:** In `server/controllers/upload.controller.js`, the `deleteImage` endpoint used `path.join` to concatenate the base upload directory with user-provided input (`imageUrl`). This allowed an attacker to bypass the intended directory using path traversal characters (`../`) and delete arbitrary files on the server (e.g., `/uploads/../../../../etc/passwd`).
+**Learning:** `path.join` does not prevent path traversal if the input contains `../`. Simply extracting a subpath using `.replace('/uploads/', '')` from user-supplied URLs is insufficient sanitization.
+**Prevention:** Always use `path.resolve` to get the absolute path, and then explicitly verify that the resolved target path strictly starts with the normalized base directory path (e.g., `filePath.startsWith(normalizedUploadDir + path.sep)`).
