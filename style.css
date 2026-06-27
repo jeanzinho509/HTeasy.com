@@ -3,6 +3,26 @@
   box-sizing: border-box;
 }
 
+/* Accessibility: Focus indicators */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #256AF5; /* Primary color */
+  outline-offset: 2px;
+}
+
+.navbar a:focus-visible,
+.navbar button:focus-visible,
+.navbar input:focus-visible,
+.navbar select:focus-visible,
+.footer a:focus-visible,
+.footer button:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
 body {
   font-family: Arial, sans-serif;
   margin: 0;
