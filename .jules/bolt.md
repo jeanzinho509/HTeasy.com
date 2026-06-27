@@ -1,0 +1,3 @@
+## 2025-01-08 - Fixed N+1 Query in Product Pagination
+**Learning:** The codebase exhibited an N+1 query bottleneck and a pagination calculation bug. When aggregating data for pagination counts (e.g., `average_rating`), the application was manually iterating over data and running independent queries per item using `Promise.all` mapping in `server/controllers/product.controller.js`.
+**Action:** Performance optimizations of this type should shift conditional logic and property computation to the database using SQL subqueries with `HAVING` clauses and aggregation functions (e.g., `HAVING (SELECT AVG(rating) FROM reviews r WHERE r.product_id = p.id) >= ?`). This eliminates the application-side iteration, massively improving performance.
