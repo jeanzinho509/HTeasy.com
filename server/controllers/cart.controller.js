@@ -58,6 +58,10 @@ exports.addToCart = async (req, res) => {
       return res.status(400).json({ message: 'Product ID is required' });
     }
     
+    if (quantity < 1) {
+      return res.status(400).json({ message: 'Quantity must be at least 1' });
+    }
+
     // Check if product exists and is active
     const [products] = await pool.query(
       'SELECT * FROM products WHERE id = ? AND status = "active"',
