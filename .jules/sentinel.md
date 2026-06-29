@@ -1,0 +1,4 @@
+## 2024-06-29 - Path Traversal Vulnerability in Image Deletion
+**Vulnerability:** The `deleteImage` endpoint in `server/controllers/upload.controller.js` extracted the file path from the user-provided `imageUrl` without validating if the resolved path stayed within the intended upload directory (`UPLOAD_DIR`). This allowed path traversal attacks (e.g., `../../../etc/passwd`), potentially leading to the deletion of arbitrary server files.
+**Learning:** Naively using `path.join` with user input is unsafe because it evaluates traversal sequences (`../`). The lack of boundary checks means the application implicitly trusts the generated file path.
+**Prevention:** Always normalize the path using `path.resolve` and strictly verify that the resulting absolute path starts with the absolute base directory (`resolvedFilePath.startsWith(resolvedUploadDir + path.sep)`). Never trust file paths derived from client input.
