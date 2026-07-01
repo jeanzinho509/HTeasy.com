@@ -131,34 +131,39 @@ exports.forgotPassword = async (req, res) => {
     // Check if user exists
     const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
     
-    if (users.length === 0) {
-      // For security reasons, don't reveal that the email doesn't exist
-      return res.status(200).json({ message: 'If your email is registered, you will receive a password reset link' });
-    }
-    
-    const user = users[0];
-    
-    // Generate a secure random token
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    
-    // Set expiration time (1 hour from now)
-    const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + 1);
-    
-    // Delete any existing tokens for this user
-    await pool.query('DELETE FROM password_reset_tokens WHERE user_id = ?', [user.id]);
-    
-    // Store the new token in the database
-    await pool.query(
-      'INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)',
-      [user.id, resetToken, expiresAt]
-    );
-    
-    // Send password reset email (mock implementation)
-    sendPasswordResetEmail(email, resetToken);
-    
-    // Return success message
+    // For security reasons, immediately return success message to prevent timing attacks
+    // which could reveal if an email is registered or not
     res.status(200).json({ message: 'If your email is registered, you will receive a password reset link' });
+
+    if (users.length > 0) {
+      // Continue processing asynchronously
+      (async () => {
+        try {
+          const user = users[0];
+
+          // Generate a secure random token
+          const resetToken = crypto.randomBytes(32).toString('hex');
+
+          // Set expiration time (1 hour from now)
+          const expiresAt = new Date();
+          expiresAt.setHours(expiresAt.getHours() + 1);
+
+          // Delete any existing tokens for this user
+          await pool.query('DELETE FROM password_reset_tokens WHERE user_id = ?', [user.id]);
+
+          // Store the new token in the database
+          await pool.query(
+            'INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)',
+            [user.id, resetToken, expiresAt]
+          );
+
+          // Send password reset email (mock implementation)
+          sendPasswordResetEmail(email, resetToken);
+        } catch (bgError) {
+          console.error('Background task error during password reset:', bgError);
+        }
+      })();
+    }
   } catch (error) {
     console.error('Forgot password error:', error);
     res.status(500).json({ message: 'Server error during password reset request' });
