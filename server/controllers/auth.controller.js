@@ -70,6 +70,9 @@ exports.register = async (req, res) => {
   }
 };
 
+// Dummy hash to prevent timing attacks when user is not found (generated with bcrypt.hash('dummy', 10))
+const DUMMY_BCRYPT_HASH = '$2b$10$Qci.uzB.J9MkoMKbYxCICeDx.mFmTJ49j53IjzLi814ZnqHSOGPnK';
+
 // Login user
 exports.login = async (req, res) => {
   try {
@@ -83,14 +86,18 @@ exports.login = async (req, res) => {
     // Find user by email
     const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
     
+    let isPasswordValid = false;
+    let user = null;
+
     if (users.length === 0) {
+      // User not found, but we still do a dummy comparison to prevent timing attacks
+      await bcrypt.compare(password, DUMMY_BCRYPT_HASH);
       return res.status(401).json({ message: 'Invalid credentials' });
+    } else {
+      user = users[0];
+      // Check password
+      isPasswordValid = await bcrypt.compare(password, user.password);
     }
-    
-    const user = users[0];
-    
-    // Check password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
     
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid credentials' });
