@@ -1,0 +1,3 @@
+## 2024-06-03 - [Fix N+1 query and pagination calculation in product filters]
+**Learning:** Aggregating data in a Node.js loop over paginated results (e.g., using `Promise.all` to manually fetch average ratings) causes severe N+1 query bottlenecks and ruins total count calculation for pagination, as the original total isn't correctly filtered without fetching all matching items sequentially.
+**Action:** Shift conditional aggregation logic and property calculation to the database layer by using subqueries with `HAVING` clauses or `COUNT(*)` over a derived table, which drastically cuts down query overhead and perfectly preserves pagination boundaries.

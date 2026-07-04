@@ -45,6 +45,8 @@ exports.getAllProducts = async (req, res) => {
       WHERE ${conditions.join(' AND ')}
     `;
     
+    let conditionParams = [...params];
+
     // Add having clause for rating filter if needed
     if (minRating !== null) {
       query += ` HAVING average_rating >= ?`;
@@ -65,32 +67,29 @@ exports.getAllProducts = async (req, res) => {
     // Execute the query
     const [products] = await pool.query(query, params);
     
-    // Build count query with the same conditions
-    let countQuery = `
-      SELECT COUNT(*) as total 
-      FROM products p
-      WHERE ${conditions.join(' AND ')}
-    `;
-    
-    let countParams = [...params.slice(0, params.length - 2)]; // Remove limit and offset
-    
-    // Execute count query
-    const [countResult] = await pool.query(countQuery, countParams);
-    
-    // If we have a rating filter, we need to count manually
-    let totalProducts = countResult[0].total;
-    
+    let totalProducts = 0;
+
     if (minRating !== null) {
-      // Count products that meet the rating criteria
-      const filteredProducts = await Promise.all(products.map(async (product) => {
-        const [ratingResult] = await pool.query(
-          'SELECT AVG(rating) as avg_rating FROM reviews WHERE product_id = ?',
-          [product.id]
-        );
-        return ratingResult[0].avg_rating >= minRating ? product : null;
-      }));
-      
-      totalProducts = filteredProducts.filter(p => p !== null).length;
+      // Build count query that handles having clause with a subquery
+      let countQuery = `
+        SELECT COUNT(*) as total FROM (
+          SELECT p.id, (SELECT AVG(rating) FROM reviews r WHERE r.product_id = p.id) as average_rating
+          FROM products p
+          WHERE ${conditions.join(' AND ')}
+        ) as t WHERE t.average_rating >= ?
+      `;
+      let countParams = [...conditionParams, minRating];
+      const [countResult] = await pool.query(countQuery, countParams);
+      totalProducts = countResult[0].total;
+    } else {
+      // Build count query with the same conditions
+      let countQuery = `
+        SELECT COUNT(*) as total
+        FROM products p
+        WHERE ${conditions.join(' AND ')}
+      `;
+      const [countResult] = await pool.query(countQuery, conditionParams);
+      totalProducts = countResult[0].total;
     }
     
     const totalPages = Math.ceil(totalProducts / limit);
@@ -205,6 +204,8 @@ exports.getProductsByCategory = async (req, res) => {
       WHERE ${conditions.join(' AND ')}
     `;
     
+    let conditionParams = [...params];
+
     // Add having clause for rating filter if needed
     if (minRating !== null) {
       query += ` HAVING average_rating >= ?`;
@@ -225,32 +226,29 @@ exports.getProductsByCategory = async (req, res) => {
     // Execute the query
     const [products] = await pool.query(query, params);
     
-    // Build count query with the same conditions
-    let countQuery = `
-      SELECT COUNT(*) as total 
-      FROM products p
-      WHERE ${conditions.join(' AND ')}
-    `;
-    
-    let countParams = [...params.slice(0, params.length - 2)]; // Remove limit and offset
-    
-    // Execute count query
-    const [countResult] = await pool.query(countQuery, countParams);
-    
-    // If we have a rating filter, we need to count manually
-    let totalProducts = countResult[0].total;
-    
+    let totalProducts = 0;
+
     if (minRating !== null) {
-      // Count products that meet the rating criteria
-      const filteredProducts = await Promise.all(products.map(async (product) => {
-        const [ratingResult] = await pool.query(
-          'SELECT AVG(rating) as avg_rating FROM reviews WHERE product_id = ?',
-          [product.id]
-        );
-        return ratingResult[0].avg_rating >= minRating ? product : null;
-      }));
-      
-      totalProducts = filteredProducts.filter(p => p !== null).length;
+      // Build count query that handles having clause with a subquery
+      let countQuery = `
+        SELECT COUNT(*) as total FROM (
+          SELECT p.id, (SELECT AVG(rating) FROM reviews r WHERE r.product_id = p.id) as average_rating
+          FROM products p
+          WHERE ${conditions.join(' AND ')}
+        ) as t WHERE t.average_rating >= ?
+      `;
+      let countParams = [...conditionParams, minRating];
+      const [countResult] = await pool.query(countQuery, countParams);
+      totalProducts = countResult[0].total;
+    } else {
+      // Build count query with the same conditions
+      let countQuery = `
+        SELECT COUNT(*) as total
+        FROM products p
+        WHERE ${conditions.join(' AND ')}
+      `;
+      const [countResult] = await pool.query(countQuery, conditionParams);
+      totalProducts = countResult[0].total;
     }
     
     const totalPages = Math.ceil(totalProducts / limit);
@@ -326,6 +324,8 @@ exports.searchProducts = async (req, res) => {
       WHERE ${conditions.join(' AND ')}
     `;
     
+    let conditionParams = [...params];
+
     // Add having clause for rating filter if needed
     if (minRating !== null) {
       query += ` HAVING average_rating >= ?`;
@@ -346,33 +346,31 @@ exports.searchProducts = async (req, res) => {
     // Execute the query
     const [products] = await pool.query(query, params);
     
-    // Build count query with the same conditions
-    let countQuery = `
-      SELECT COUNT(*) as total 
-      FROM products p
-      LEFT JOIN categories c ON p.category_id = c.id
-      WHERE ${conditions.join(' AND ')}
-    `;
-    
-    let countParams = [...params.slice(0, params.length - 2)]; // Remove limit and offset
-    
-    // Execute count query
-    const [countResult] = await pool.query(countQuery, countParams);
-    
-    // If we have a rating filter, we need to count manually
-    let totalProducts = countResult[0].total;
-    
+    let totalProducts = 0;
+
     if (minRating !== null) {
-      // Count products that meet the rating criteria
-      const filteredProducts = await Promise.all(products.map(async (product) => {
-        const [ratingResult] = await pool.query(
-          'SELECT AVG(rating) as avg_rating FROM reviews WHERE product_id = ?',
-          [product.id]
-        );
-        return ratingResult[0].avg_rating >= minRating ? product : null;
-      }));
-      
-      totalProducts = filteredProducts.filter(p => p !== null).length;
+      // Build count query that handles having clause with a subquery
+      let countQuery = `
+        SELECT COUNT(*) as total FROM (
+          SELECT p.id, (SELECT AVG(rating) FROM reviews r WHERE r.product_id = p.id) as average_rating
+          FROM products p
+          LEFT JOIN categories c ON p.category_id = c.id
+          WHERE ${conditions.join(' AND ')}
+        ) as t WHERE t.average_rating >= ?
+      `;
+      let countParams = [...conditionParams, minRating];
+      const [countResult] = await pool.query(countQuery, countParams);
+      totalProducts = countResult[0].total;
+    } else {
+      // Build count query with the same conditions
+      let countQuery = `
+        SELECT COUNT(*) as total
+        FROM products p
+        LEFT JOIN categories c ON p.category_id = c.id
+        WHERE ${conditions.join(' AND ')}
+      `;
+      const [countResult] = await pool.query(countQuery, conditionParams);
+      totalProducts = countResult[0].total;
     }
     
     const totalPages = Math.ceil(totalProducts / limit);
